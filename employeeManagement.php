@@ -69,3 +69,102 @@ class Department
     }
 }
 
+class Company
+{
+    private string $name;
+    private array $employees = [];
+
+    public function __construct(string $name)
+    {
+        $this->name = $name;
+    }
+
+    public function hireEmployee(Employee $employee): void
+    {
+        $this->employees[] = $employee;
+    }
+
+    public function assignDepartment(
+        Employee $employee,
+        Department $department
+    ): bool {
+
+        $found = false;
+
+        foreach ($this->employees as $emp) {
+            if ($emp === $employee) {
+                $found = true;
+                break;
+            }
+        }
+
+        if (!$found) {
+            return false;
+        }
+
+        $department->addEmployee($employee);
+
+        return true;
+    }
+
+    public function showEmployees(): void
+    {
+        foreach ($this->employees as $employee) {
+
+            echo "ID: " .
+                $employee->getId() .
+                " | Name: " .
+                $employee->getName();
+
+            $department = $employee->getDepartment();
+
+            if ($department !== null) {
+                echo " | Department: " .
+                    $department->getName();
+            }
+
+            echo "\n";
+        }
+    }
+}
+
+$company = new Company("Tech Corp");
+
+$employee1 = new Employee(
+    101,
+    "Shoumik"
+);
+
+$employee2 = new Employee(
+    102,
+    "Mitu"
+);
+
+$department1 = new Department(
+    1,
+    "Software Engineering"
+);
+
+$department2 = new Department(
+    2,
+    "Human Resources"
+);
+
+$company->hireEmployee($employee1);
+$company->hireEmployee($employee2);
+
+$company->assignDepartment(
+    $employee1,
+    $department1
+);
+
+$company->assignDepartment(
+    $employee2,
+    $department2
+);
+
+$company->showEmployees();
+
+?>
+```
+
