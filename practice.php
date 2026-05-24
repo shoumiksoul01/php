@@ -1,31 +1,37 @@
 <?php
-class UserModel
-{
-    private array $data = [];
-    private array $dirty = [];
 
-    public function __set(string $name, mixed $value): void
+class CacheProxy {
+    public function __construct(
+        private array $store = []
+    ) {}
+
+    public function __set(string $k, mixed $v): void
     {
-        if (($this->data[$name] ?? null) !== $value) {
-            $this->dirty[] = $name;
-        }
-        $this->data[$name] = $value;
+        $this->store[$k] = $v;
     }
 
-    public function __get(string $name): mixed
+    public function __get(string $k): mixed
     {
-        return $this->data[$name]
-            ?? throw new \RuntimeException("Property '$name' not found");
+        return $this->store[$k] ?? null;
     }
 
-    public function getDirty(): array
+    public function __isset(string $k): bool
     {
-        return $this->dirty;
+        return array_key_exists($k, $this->store)
+            && $this->store[$k] !== null;
+    }
+
+    public function __unset(string $k): void
+    {
+        unset($this->store[$k]);
     }
 }
 
-$user = new UserModel();
-$user->name  = 'Alice';
-$user->email = 'alice@example.com';
-echo $user->name;            // Alice
-print_r($user->getDirty());  // ['name', 'email']
+$cache = new CacheProxy();
+$cache->token = 'abc123';
+
+var_dump(isset($cache->token));   // bool(true)
+var_dump(empty($cache->missing)); // bool(true)
+unset($cache->token);
+var_dump(isset($cache->token));   // bool(false)
+?>
